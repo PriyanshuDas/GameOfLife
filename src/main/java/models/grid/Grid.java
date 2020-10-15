@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import lombok.Getter;
 import models.interfaces.GeneralException;
@@ -23,7 +24,7 @@ public class Grid implements IBoard {
   Logger logger = LoggerFactory.getLogger(Grid.class);
   @Getter
   private int rows, columns;
-  private Map<IBoardLocation, Cell> aliveCells = new HashMap<>();
+  private Map<IBoardLocation, Cell> aliveCells = new ConcurrentHashMap<>();
   private GridCellFactory gridCellFactory = new GridCellFactory();
   @Getter
   private Set<IBoardLocation> newlyAliveLocations = new HashSet<>();
@@ -38,14 +39,14 @@ public class Grid implements IBoard {
   public void setAliveCells(List<IBoardLocation> aliveCells) {
     this.newlyAliveLocations.clear();
     this.newlyAliveLocations.addAll(aliveCells);
-    aliveCells.forEach(gridLocation -> this.aliveCells.put(gridLocation,
+    aliveCells.parallelStream().forEach(gridLocation -> this.aliveCells.put(gridLocation,
         (Cell) gridCellFactory.buildCell(gridLocation, CellState.ALIVE)));
   }
 
   public void setDeadCells(List<IBoardLocation> deadCells) {
     this.newlyDeadLocations.clear();
     this.newlyDeadLocations.addAll(deadCells);
-    deadCells.forEach(gridLocation -> this.aliveCells.remove(gridLocation));
+    deadCells.parallelStream().forEach(gridLocation -> this.aliveCells.remove(gridLocation));
   }
 
   public Cell getCellAt(IBoardLocation gridLocation) {
