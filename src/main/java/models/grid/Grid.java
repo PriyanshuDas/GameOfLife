@@ -73,12 +73,11 @@ public class Grid implements IBoard {
     }
 
   @Override
-  public List<ICell> getAdjacentCells(ICell cell) throws GeneralException  {
+  public List<ICell> getAdjacentCells(ICell cell) {
     if (!cell.getClass().equals(Cell.class)) {
-      throw new GridException("cell type not supported");
+      return new ArrayList<>();
     }
-    GridLocation cellLocation = ((Cell) cell).getGridLocation();
-    return cellLocation.getAdjacentLocations().stream()
+    return ((Cell) cell).getGridLocation().getAdjacentLocations().stream()
         .filter(location -> location.getRow() > 0 && location.getColumn() > 0
             && location.getRow() < rows && location.getColumn() < columns)
         .map(this::getCellAt)

@@ -6,7 +6,7 @@ import java.util.Set;
 public interface IBoard {
     public void initialize(IBoardConfig boardConfig) throws GeneralException;
 
-  List<ICell> getAdjacentCells(ICell cell) throws GeneralException ;
+  List<ICell> getAdjacentCells(ICell cell);
   List<ICell> getAliveCells();
   public void setAliveCells(List<IBoardLocation> positions);
   public void setDeadCells(List<IBoardLocation> positions);

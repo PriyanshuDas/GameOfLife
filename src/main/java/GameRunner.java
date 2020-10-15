@@ -1,13 +1,12 @@
-import models.configs.GameConfig;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import models.configs.GameConfig;
 import models.displays.GridDisplay;
-import models.grid.Cell;
 import models.grid.Grid;
 import models.interfaces.GeneralException;
 import models.interfaces.IBoard;
-import models.interfaces.IBoardLocation;
 import models.interfaces.ICell;
 import models.interfaces.ICell.CellState;
 import utils.TimeUtil;
@@ -18,7 +17,7 @@ public class GameRunner {
   private GridDisplay gameDisplay;
   private TimeUtil runGameTimer;
   private TimeUtil updateStateTimer;
-  private static boolean DEBUG_ENABLED = true;
+  private static boolean DEBUG_ENABLED = false;
   private long framesRendered = 0;
   private long waitTimeBetweenFrames;
 
@@ -34,11 +33,8 @@ public class GameRunner {
   }
 
   public void runGame() {
-    if (framesRendered%500 == 0) {
-      DEBUG_ENABLED = true;
-    }
-    else {
-      DEBUG_ENABLED = false;
+    if (framesRendered%10000 == 0) {
+      DEBUG_ENABLED = !DEBUG_ENABLED;
     }
     long endMs = 0, startMs = 0;
     do {
@@ -59,65 +55,41 @@ public class GameRunner {
       gameDisplay.updateNextFrame(board);
       runGameTimer.logTime("Time Elapsed to Update state : ", DEBUG_ENABLED);
       endMs = System.currentTimeMillis();
+      if (framesRendered%10000 == 0) {
+        DEBUG_ENABLED = !DEBUG_ENABLED;
+      }
       framesRendered++;
     } while (true);
   }
 
-
-  //todo: debug
   private void updateState() {
     updateStateTimer.tick();
     List<ICell> updatedCells = getUpdatedCells();
     updateStateTimer.logTime("Time taken to get updatedCells : ", DEBUG_ENABLED);
 
-    List<IBoardLocation> positionsToDeleteCells = updatedCells.parallelStream()
-        .filter(cell -> cell.getState().equals(CellState.ALIVE))
-        .map(ICell::getLocation)
-        .collect(Collectors.toList());
-
-    List<IBoardLocation> positionsToCreateCells = updatedCells.parallelStream()
+    updateStateTimer.tick();
+    board.setAliveCells(updatedCells.parallelStream()
         .filter(cell -> cell.getState().equals(CellState.DEAD))
         .map(ICell::getLocation)
-        .collect(Collectors.toList());
-
-    updateStateTimer.tick();
-    board.setAliveCells(positionsToCreateCells);
+        .collect(Collectors.toList()));
     updateStateTimer.logTime("Time taken to set aliveCells : ", DEBUG_ENABLED);
 
     updateStateTimer.tick();
-    board.setDeadCells(positionsToDeleteCells);
+    board.setDeadCells(updatedCells.parallelStream()
+        .filter(cell -> cell.getState().equals(CellState.ALIVE))
+        .map(ICell::getLocation)
+        .collect(Collectors.toList()));
     updateStateTimer.logTime("Time taken to set deadCells : ", DEBUG_ENABLED);
   }
 
   private List<ICell> getUpdatedCells() {
-    List<ICell> locationsToUpdate = new ArrayList<>();
-    locationsToUpdate.addAll(board.getNewlyAliveLocations().parallelStream()
+    return Stream.concat(
+        board.getNewlyAliveLocations().parallelStream(),
+        board.getNewlyDeadLocations().parallelStream())
         .map(location -> board.getCellAt(location))
-        .collect(Collectors.toList()));
-
-    locationsToUpdate.addAll(board.getNewlyDeadLocations().parallelStream()
-        .map(location -> board.getCellAt(location))
-        .collect(Collectors.toList()));
-
-    List<ICell> adjacentCells = locationsToUpdate.parallelStream()
-        .map(cell -> {
-          try {
-            return board.getAdjacentCells(cell);
-          } catch (GeneralException e) {
-            e.printStackTrace();
-            return new ArrayList<ICell>();
-          }
-        })
-        .flatMap(List::stream)
+        .map(cell -> cell.getCellAndNeighbors(board))
+        .flatMap(Collection::parallelStream)
         .distinct()
-        .collect(Collectors.toList());
-    locationsToUpdate.addAll(adjacentCells);
-
-    locationsToUpdate = locationsToUpdate.parallelStream()
-        .map(item -> (Cell) item).distinct()
-        .collect(Collectors.toList());
-
-    return locationsToUpdate.parallelStream()
         .filter(cell -> {
           CellState newState = gameConfig.getRuleset().getNewState(cell, board);
           if (!newState.equals(cell.getState())) {
@@ -128,4 +100,5 @@ public class GameRunner {
           }
         }).collect(Collectors.toList());
   }
+
 }

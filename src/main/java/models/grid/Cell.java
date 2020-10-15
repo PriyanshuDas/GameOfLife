@@ -1,5 +1,7 @@
 package models.grid;
 
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -23,5 +25,11 @@ public class Cell implements ICell {
 
     public IBoardLocation getLocation() {
         return gridLocation;
+    }
+
+    public List<ICell> getCellAndNeighbors(IBoard board) {
+            List<ICell> cellsToUpdate = new ArrayList<>(board.getAdjacentCells(this));
+            cellsToUpdate.add(this);
+            return cellsToUpdate;
     }
 }

@@ -10,17 +10,12 @@ public class ClassicRuleset implements GameOfLifeRuleset {
 
   @Override
   public CellState getNewState(ICell cell, IBoard board) {
-    try {
-      List<ICell> adjacentCells = board.getAdjacentCells(cell);
-      int liveNeighbours = (int) adjacentCells.stream()
-          .filter(neighbourCell -> neighbourCell.getState().equals(CellState.ALIVE)).count();
-      return cell.getState() == CellState.ALIVE ?
-          getAliveCellNewState(liveNeighbours)
-          : getDeadCellNewState(liveNeighbours);
-    } catch (GeneralException e) {
-      e.printStackTrace();
-      return null;
-    }
+    List<ICell> adjacentCells = board.getAdjacentCells(cell);
+    int liveNeighbours = (int) adjacentCells.stream()
+        .filter(neighbourCell -> neighbourCell.getState().equals(CellState.ALIVE)).count();
+    return cell.getState() == CellState.ALIVE ?
+        getAliveCellNewState(liveNeighbours)
+        : getDeadCellNewState(liveNeighbours);
   }
 
   private CellState getDeadCellNewState(int liveNeighbours) {

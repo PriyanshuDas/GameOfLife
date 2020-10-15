@@ -11,9 +11,9 @@ public class GameConfigFactory {
 
   private static final int WIDTH = 1800;
   private static final int HEIGHT = 1000;
-  private static final int COLS = 300;
-  private static final int ROWS = 164;
-  private static final int FPS = 30;
+  private static final int COLS = 450;
+  private static final int ROWS = 250;
+  private static final int FPS = 15;
 
   public static GameConfig simpleRandomConfig(double probability) {
 
