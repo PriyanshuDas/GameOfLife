@@ -10,7 +10,7 @@ public class Main {
   }
 
   private static void testGameOfLife() throws GeneralException {
-    GameRunner gameRunner = new GameRunner(GameConfigFactory.simpleRandomConfig(0.5));
+    GameRunner gameRunner = new GameRunner(GameConfigFactory.simpleRandomConfig(0.3));
     gameRunner.runGame();
   }
 }

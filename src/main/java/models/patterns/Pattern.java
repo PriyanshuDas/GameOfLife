@@ -1,5 +1,8 @@
 package models.patterns;
 
-public abstract class Pattern {
+import java.util.List;
+import models.grid.GridLocation;
 
+public interface Pattern {
+  public List<GridLocation> getPattern();
 }
