@@ -2,42 +2,43 @@ package models.displays;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import javax.swing.JFrame;
+import models.displays.DisplayCell.DisplayCellState;
 import utils.ColorUtils;
 
 public class GridRenderer extends JFrame {
   private int width, height;
   private int rows, columns;
   private int cellSize;
-  private List<DisplayPosition> cellsToDelete;
-  private List<DisplayPosition> cellsToCreate;
-  private Color borderColor;
+  private Collection<DisplayCell> cellsToRender;
   private Color backgroundColor;
-  private Color cellColor;
   BufferedImage bufferedImage;
+  GraphicsEnvironment graphics;
+  GraphicsDevice device;
 
 
   public GridRenderer(
       String title, int width, int height, int rows, int columns,
-      Color backgroundColor, Color cellColor, Color borderColor) {
+      Color backgroundColor) {
     super(title);
     this.width = width;
     this.height = height;
     this.rows = rows;
     this.columns = columns;
     this.cellSize = Math.min(
-        Math.max(this.height / this.rows, 4),
-        Math.max(this.width / this.columns, 4));
+        Math.max(this.height / this.rows, 2),
+        Math.max(this.width / this.columns, 2));
 
     this.backgroundColor = backgroundColor;
-    this.cellColor = cellColor;
-    this.borderColor = borderColor;
+    setUndecorated(true);
 
-    cellsToCreate = new ArrayList<>();
-    cellsToDelete = new ArrayList<>();
+    cellsToRender = new ArrayList<>();
 
     setSize(width, height);
     setResizable(false);
@@ -49,19 +50,22 @@ public class GridRenderer extends JFrame {
   }
   public GridRenderer(
       String title, int width, int height, int rows, int columns) {
-    this(title, width, height, rows, columns,
-        Color.BLACK, ColorUtils.randomColor(), Color.BLACK);
+    this(title, width, height, rows, columns, Color.BLACK);
   }
 
   public void animation(Graphics g) {
     super.paint(g);
-    cellsToCreate.forEach(cell -> {
-      GridCell gridCell = new GridCell(cell.getRow(), cell.getColumn(),
-          cellSize);
-      g.setColor(borderColor);
-      g.drawRect(gridCell.getX(), gridCell.getY(), gridCell.getWidth(), gridCell.getHeight());
-      g.setColor(cellColor);
-      g.fillRect(gridCell.getX()+1, gridCell.getY()+1, gridCell.getWidth()-1, gridCell.getHeight()-1);
+    cellsToRender.forEach(cell -> {
+      g.setColor(cell.getColor());
+      g.fillRect(
+          cell.getPosition().getColumn()*cellSize,
+          cell.getPosition().getRow()*cellSize,
+          cellSize, cellSize);
+      g.setColor(cell.getBorderColor());
+      g.drawRect(
+          cell.getPosition().getColumn()*cellSize,
+          cell.getPosition().getRow()*cellSize,
+          cellSize, cellSize);
     });
   }
 
@@ -72,9 +76,8 @@ public class GridRenderer extends JFrame {
   public void update(Graphics g){
     paint(g);
   }
-  public void render(List<DisplayPosition> cellsToCreate) {
-    this.cellsToCreate = cellsToCreate;
-//    this.cellsToDelete = cellsToDelete;
+  public void render(Collection<DisplayCell> cellsToRender) {
+    this.cellsToRender = cellsToRender;
     repaint();
   }
 }

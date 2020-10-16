@@ -1,5 +1,6 @@
 package models.interfaces;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -7,10 +8,10 @@ public interface IBoard {
     public void initialize(IBoardConfig boardConfig) throws GeneralException;
 
   List<ICell> getAdjacentCells(ICell cell);
-  List<ICell> getAliveCells();
-  public void setAliveCells(List<IBoardLocation> positions);
-  public void setDeadCells(List<IBoardLocation> positions);
-  public Set<IBoardLocation> getNewlyAliveLocations();
-  public Set<IBoardLocation> getNewlyDeadLocations();
+  public Set<IBoardLocation> getLastUpdatedLocations();
   public ICell getCellAt(IBoardLocation boardLocation);
+
+  void updateCells(List<ICell> cellsToFlip);
+
+  Collection<IBoardLocation> getAliveCellsLocations();
 }

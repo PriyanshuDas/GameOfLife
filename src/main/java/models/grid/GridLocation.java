@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import models.interfaces.GridCoordinate;
 import models.interfaces.IBoardLocation;
 
 @Builder
@@ -14,7 +15,7 @@ import models.interfaces.IBoardLocation;
 @Setter
 @EqualsAndHashCode
 @AllArgsConstructor
-public class GridLocation implements IBoardLocation {
+public class GridLocation implements IBoardLocation, GridCoordinate {
     int row, column;
 
   public List<GridLocation> getAdjacentLocations() {

@@ -10,10 +10,10 @@ import models.rulesets.GameOfLifeRuleset;
 
 public class GameConfigFactory {
 
-  private static final int WIDTH = 1800;
-  private static final int HEIGHT = 1000;
-  private static final int COLS = 450;
-  private static final int ROWS = 250;
+  private static final int WIDTH = 1920;
+  private static final int HEIGHT = 1080;
+  private static final int COLS = 640;
+  private static final int ROWS = 360;
   private static final int FPS = 30;
 
   public static GameConfig simpleRandomConfig(double probability) {
@@ -52,8 +52,8 @@ public class GameConfigFactory {
     return GameConfig.builder()
         .width(WIDTH)
         .height(HEIGHT)
-        .rows(ROWS)
-        .columns(COLS)
+        .rows(gridConfig.getRows())
+        .columns(gridConfig.getColumns())
         .boardConfig(gridConfig)
         .ruleset(ruleset)
         .fps(FPS)

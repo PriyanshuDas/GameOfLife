@@ -1,46 +1,70 @@
 package models.displays;
 
-import java.util.ArrayList;
+import java.awt.Color;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import models.displays.DisplayCell.DisplayCellState;
 import models.grid.Grid;
 import models.grid.GridLocation;
-import models.interfaces.IBoard;
+import models.interfaces.GridCoordinate;
+import models.interfaces.IBoardLocation;
 
 public class GridDisplay implements GameDisplay {
 
   private static final String TITLE = "Game Of Life";
-  List<DisplayPosition> nextFrameAliveCells;
+  int rows, columns;
+  List<List<DisplayCell>> cells;
+  ConcurrentHashMap<DisplayPosition, DisplayCell> cellsAlivePositions;
   GridRenderer gridRenderer;
+  private Color borderColor;
+  private Color backgroundColor;
+  private Color cellColor;
 
-  public void initialize(Grid grid, int width, int height) {
-    nextFrameAliveCells = new ArrayList<>();
-    gridRenderer = new GridRenderer(TITLE, width, height, grid.getRows(), grid.getColumns());
-    populateNextFrameAliveCells(grid);
+  public void initialize(int rows, int columns, Collection<IBoardLocation> alivePositions, int width, int height) {
+    this.rows = rows;
+    this.columns = columns;
+    cellColor = Color.cyan;
+    borderColor = Color.black;
+    backgroundColor = Color.black;
+    gridRenderer = new GridRenderer(TITLE, width, height, this.rows, this.columns, backgroundColor);
+    initializeCells();
+    updateNextFrame(alivePositions.stream()
+        .map(location -> (GridLocation)location).collect(Collectors.toList()));
   }
-  @Override
-  public void updateNextFrame(IBoard board) {
-    populateNextFrameAliveCells((Grid) board);
-  }
 
-  private void populateNextFrameAliveCells(Grid board) {
-    Set<GridLocation> newlyDeadlocations = board.getNewlyDeadLocations()
-        .stream().map(item -> (GridLocation) item).collect(Collectors.toSet());
-
-    nextFrameAliveCells = nextFrameAliveCells.stream()
-        .filter(cell ->
-            !newlyDeadlocations.contains(new GridLocation(cell.getRow(), cell.getColumn())))
+  private void initializeCells() {
+    cells = IntStream.range(0, rows)
+        .mapToObj(row -> IntStream.range(0, columns)
+            .mapToObj(column -> new DisplayCell(
+                cellColor, borderColor, new DisplayPosition(row, column), DisplayCellState.DEAD))
+            .collect(Collectors.toList()))
         .collect(Collectors.toList());
+    cellsAlivePositions = new ConcurrentHashMap<>();
+  }
 
-    nextFrameAliveCells.addAll(board.getNewlyAliveLocations().stream()
-        .map(item -> new DisplayPosition(
-            ((GridLocation) item).getRow(),
-            ((GridLocation) item).getColumn()))
-        .collect(Collectors.toList()));
+  @Override
+  public void updateNextFrame(List<GridCoordinate> flipPositions) {
+    flipPositions.parallelStream().forEach(position -> {
+      DisplayCell displayCell = cells.get(position.getRow()).get(position.getColumn());
+      displayCell.flipState();
+      if (displayCell.getState().equals(DisplayCellState.ALIVE))
+        cellsAlivePositions.put(displayCell.getPosition(), displayCell);
+      else
+        cellsAlivePositions.remove(displayCell.getPosition());
+    });
+  }
+
+  private DisplayCell getDisplayCellAt(DisplayPosition location) {
+    return cells.get(location.getRow()).get(location.getColumn());
   }
 
   public void render() {
-    gridRenderer.render(nextFrameAliveCells);
+    gridRenderer.render(cellsAlivePositions.values());
   }
 }
