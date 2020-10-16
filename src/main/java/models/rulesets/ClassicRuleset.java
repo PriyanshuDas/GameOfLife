@@ -10,9 +10,9 @@ public class ClassicRuleset implements GameOfLifeRuleset {
 
   @Override
   public CellState getNewState(ICell cell, IBoard board) {
-    List<ICell> adjacentCells = board.getAdjacentCells(cell);
-    int liveNeighbours = (int) adjacentCells.stream()
-        .filter(neighbourCell -> neighbourCell.getState().equals(CellState.ALIVE)).count();
+    int liveNeighbours = (int) board.getAdjacentCells(cell).stream()
+        .filter(neighbourCell -> neighbourCell.getState().equals(CellState.ALIVE))
+        .count();
     return cell.getState() == CellState.ALIVE ?
         getAliveCellNewState(liveNeighbours)
         : getDeadCellNewState(liveNeighbours);

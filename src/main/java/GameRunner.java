@@ -52,27 +52,43 @@ public class GameRunner {
       }
       runGameTimer.tick();
       gameDisplay.render();
-      if (framesRendered%(10) == 0) {
-        runGameTimer.logTime("Time Elapsed to Render frame : ", true);
+      if (shouldLogThisFrame()) {
+        runGameTimer.logTime("Time Elapsed to Render frame : ");
       }
       runGameTimer.tick();
       List<GridCoordinate> updatedCells = updateState().stream()
           .map(cell -> (GridCoordinate) cell)
           .collect(Collectors.toList());
 
+      if (shouldLogThisFrame()) {
+        runGameTimer.logTime("Time Elapsed to Update Cells : ");
+      }
+      runGameTimer.tick();
       gameDisplay.updateNextFrame(updatedCells);
 
-      if (framesRendered%(10) == 0) {
-      runGameTimer.logTime("Time Elapsed to Update state : ", true);
+      if (shouldLogThisFrame()) {
+      runGameTimer.logTime("Time Elapsed to Update Next Frame : ");
       }
       endMs = System.currentTimeMillis();
       framesRendered++;
     } while (true);
   }
 
+  private boolean shouldLogThisFrame() {
+    return DEBUG_ENABLED && framesRendered % (2) == 0;
+  }
+
   private List<ICell> updateState() {
+    updateStateTimer.tick();
     List<ICell> updatedCells = getUpdatedCells();
+    if (shouldLogThisFrame()) {
+      updateStateTimer.logTime("Updated Cells Calculation time : ");
+    }
+    updateStateTimer.tick();
     board.updateCells(updatedCells);
+    if (shouldLogThisFrame()) {
+      updateStateTimer.logTime("Updating Board time : ");
+    }
     return updatedCells;
   }
 

@@ -14,6 +14,7 @@ import models.grid.Grid;
 import models.grid.GridLocation;
 import models.interfaces.GridCoordinate;
 import models.interfaces.IBoardLocation;
+import utils.ColorUtils;
 
 public class GridDisplay implements GameDisplay {
 
@@ -29,7 +30,6 @@ public class GridDisplay implements GameDisplay {
   public void initialize(int rows, int columns, Collection<IBoardLocation> alivePositions, int width, int height) {
     this.rows = rows;
     this.columns = columns;
-    cellColor = Color.cyan;
     borderColor = Color.black;
     backgroundColor = Color.black;
     gridRenderer = new GridRenderer(TITLE, width, height, this.rows, this.columns, backgroundColor);
@@ -42,7 +42,8 @@ public class GridDisplay implements GameDisplay {
     cells = IntStream.range(0, rows)
         .mapToObj(row -> IntStream.range(0, columns)
             .mapToObj(column -> new DisplayCell(
-                cellColor, borderColor, new DisplayPosition(row, column), DisplayCellState.DEAD))
+                ColorUtils.randomColor(), borderColor,
+                new DisplayPosition(row, column), DisplayCellState.DEAD))
             .collect(Collectors.toList()))
         .collect(Collectors.toList());
     cellsAlivePositions = new ConcurrentHashMap<>();

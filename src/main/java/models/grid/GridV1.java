@@ -51,7 +51,7 @@ public class GridV1 extends Grid {
   }
 
   @Override
-  public Set<IBoardLocation> getLastUpdatedLocations() {
+  public Collection<IBoardLocation> getLastUpdatedLocations() {
     return Stream.concat(newlyAliveLocations.stream(), newlyDeadLocations.stream())
         .collect(Collectors.toSet());
   }

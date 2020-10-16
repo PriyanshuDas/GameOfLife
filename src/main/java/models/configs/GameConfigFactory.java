@@ -1,5 +1,6 @@
 package models.configs;
 
+import models.generation.config.strategy.GospelGunGeneratorStrategy;
 import models.generation.config.strategy.GridConfigStrategy;
 import models.generation.config.strategy.RandomConfigStrategy;
 import models.generation.config.strategy.RandomGliderStrategy;
@@ -58,5 +59,16 @@ public class GameConfigFactory {
         .ruleset(ruleset)
         .fps(FPS)
         .build();
+  }
+
+  public static GameConfig simpleGospelGunConfig(double probability) {
+
+    GridConfigStrategy gridConfigStrategy = GospelGunGeneratorStrategy.builder()
+        .gunGenerationProbability(probability)
+        .build();
+
+    GridConfig gridConfig = gridConfigStrategy.getConfig(ROWS, COLS);
+    GameOfLifeRuleset ruleset = new ClassicRuleset();
+    return buildConfig(gridConfig, ruleset);
   }
 }

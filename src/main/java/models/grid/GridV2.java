@@ -27,8 +27,7 @@ public class GridV2 extends Grid{
   @Getter
   private int rows, columns;
   private List<List<Cell>> cells;
-  @Getter
-  private Set<IBoardLocation> lastUpdatedLocations = new HashSet<>();
+  private ConcurrentHashMap<IBoardLocation, Cell> lastUpdatedLocations = new ConcurrentHashMap<>();
 
 
   public GridV2(IBoardConfig boardConfig) throws GeneralException {
@@ -45,7 +44,7 @@ public class GridV2 extends Grid{
     lastUpdatedLocations.clear();
     cellsToFlip.parallelStream().forEach(cell -> {
       cell.flipState();
-      lastUpdatedLocations.add(cell.getLocation());
+      lastUpdatedLocations.put(cell.getLocation(), (Cell) cell);
     });
   }
 
@@ -74,7 +73,7 @@ public class GridV2 extends Grid{
     aliveCells.parallelStream().map(this::getCellAt)
         .forEach(cell -> {
           cell.updateState(CellState.ALIVE);
-          lastUpdatedLocations.add(cell.getGridLocation());
+          lastUpdatedLocations.put(cell.getGridLocation(), (Cell) cell);
         });
   }
 
@@ -96,5 +95,10 @@ public class GridV2 extends Grid{
             && location.getRow() < rows && location.getColumn() < columns)
         .map(this::getCellAt)
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public Collection<IBoardLocation> getLastUpdatedLocations() {
+    return lastUpdatedLocations.keySet();
   }
 }
