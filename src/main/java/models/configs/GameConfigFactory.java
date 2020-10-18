@@ -1,19 +1,23 @@
 package models.configs;
 
+import models.generation.config.strategy.GospelGunGeneratorStrategy;
 import models.generation.config.strategy.GridConfigStrategy;
 import models.generation.config.strategy.RandomConfigStrategy;
 import models.generation.config.strategy.RandomGliderStrategy;
 import models.generation.config.strategy.RandomPulsarConfig;
 import models.grid.GridConfig;
+import models.grid.GridV2;
+import models.grid.GridV3;
 import models.rulesets.ClassicRuleset;
+import models.rulesets.ClassicRulesetAdjacentAwareCells;
 import models.rulesets.GameOfLifeRuleset;
 
 public class GameConfigFactory {
 
-  private static final int WIDTH = 1800;
-  private static final int HEIGHT = 1000;
-  private static final int COLS = 450;
-  private static final int ROWS = 250;
+  private static final int WIDTH = 1920;
+  private static final int HEIGHT = 1080;
+  private static final int COLS = 960;
+  private static final int ROWS = 540;
   private static final int FPS = 30;
 
   public static GameConfig simpleRandomConfig(double probability) {
@@ -23,7 +27,7 @@ public class GameConfigFactory {
         .build();
 
     GridConfig gridConfig = gridConfigStrategy.getConfig(ROWS, COLS);
-    GameOfLifeRuleset ruleset = new ClassicRuleset();
+    GameOfLifeRuleset ruleset = new ClassicRulesetAdjacentAwareCells();
     return buildConfig(gridConfig, ruleset);
   }
   public static GameConfig gliderConfig(double probability) {
@@ -52,11 +56,22 @@ public class GameConfigFactory {
     return GameConfig.builder()
         .width(WIDTH)
         .height(HEIGHT)
-        .rows(ROWS)
-        .columns(COLS)
+        .rows(gridConfig.getRows())
+        .columns(gridConfig.getColumns())
         .boardConfig(gridConfig)
         .ruleset(ruleset)
         .fps(FPS)
+        .GridClass(GridV3.class)
         .build();
+  }
+
+  public static GameConfig simpleGospelGunConfig(double probability) {
+
+    GridConfigStrategy gridConfigStrategy = GospelGunGeneratorStrategy.builder()
+        .gunGenerationProbability(probability)
+        .build();
+
+    GridConfig gridConfig = gridConfigStrategy.getConfig(ROWS, COLS);
+    return buildConfig(gridConfig, new ClassicRuleset());
   }
 }

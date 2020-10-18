@@ -13,4 +13,5 @@ public class GameConfig {
   int fps;
   IBoardConfig boardConfig;
   GameOfLifeRuleset ruleset;
+  Class GridClass;
 }
