@@ -1,7 +1,6 @@
 package models.displays;
 
 import java.awt.Color;
-import java.awt.Component;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -22,7 +21,8 @@ public class DisplayCell implements GridCoordinate {
     return position.getColumn();
   }
 
-  public enum  DisplayCellState {ALIVE, DEAD};
+  public enum  DisplayCellState {ALIVE, DEAD}
+
   private Color color;
   private Color borderColor;
   private DisplayPosition position;

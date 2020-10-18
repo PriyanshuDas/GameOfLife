@@ -1,18 +1,11 @@
 package models.grid;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import lombok.Getter;
 import models.interfaces.GeneralException;
-import models.interfaces.GridCoordinate;
-import models.interfaces.IBoard;
 import models.interfaces.IBoardConfig;
 import models.interfaces.IBoardLocation;
 import models.interfaces.ICell;
@@ -55,7 +48,7 @@ public class GridV2 extends Grid{
     aliveCells.parallelStream().map(this::getCellAt)
         .forEach(cell -> {
           cell.updateState(CellState.ALIVE);
-          lastUpdatedLocations.put(cell.getGridLocation(), (Cell) cell);
+          lastUpdatedLocations.put(cell.getGridLocation(), cell);
         });
 }
 

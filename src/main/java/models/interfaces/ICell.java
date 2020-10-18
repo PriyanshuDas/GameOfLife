@@ -6,9 +6,10 @@ public interface ICell {
 
   void flipState();
 
-  public enum CellState {DEAD, ALIVE};
-    CellState getState();
-    public void updateState(CellState newState);
-    public IBoardLocation getLocation();
-    public List<ICell> getCellAndNeighbors(IBoard board);
+  enum CellState {DEAD, ALIVE}
+
+  CellState getState();
+    void updateState(CellState newState);
+    IBoardLocation getLocation();
+    List<ICell> getCellAndNeighbors(IBoard board);
 }
