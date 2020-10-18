@@ -1,17 +1,13 @@
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import models.configs.GameConfig;
 import models.displays.GridDisplay;
-import models.grid.Grid;
 import models.grid.GridV1;
 import models.grid.GridV2;
+import models.grid.GridV3;
 import models.interfaces.GeneralException;
 import models.interfaces.GridCoordinate;
 import models.interfaces.IBoard;
-import models.interfaces.ICell;
-import models.interfaces.ICell.CellState;
 import utils.TimeUtil;
 
 public class GameRunner {
@@ -27,19 +23,36 @@ public class GameRunner {
 
   public GameRunner(GameConfig gameConfig) throws GeneralException {
     this.gameConfig = gameConfig;
-    board = new GridV2(gameConfig.getBoardConfig());
-    gameDisplay = new GridDisplay();
-    gameDisplay.initialize(
-        gameConfig.getRows(), gameConfig.getColumns(),
-        board.getAliveCellsLocations(),
-        gameConfig.getWidth(), gameConfig.getHeight());
+    initializeGrid();
+    initializeDisplay();
     runGameTimer = new TimeUtil();
     updateStateTimer = new TimeUtil();
     waitTimeBetweenFrames = 1000/gameConfig.getFps();
   }
 
+  private void initializeDisplay() {
+    gameDisplay = new GridDisplay();
+    gameDisplay.initialize(
+        gameConfig.getRows(), gameConfig.getColumns(),
+        board.getAliveCellsLocations(),
+        gameConfig.getWidth(), gameConfig.getHeight());
+  }
+
+  private void initializeGrid() throws GeneralException {
+    if (gameConfig.getGridClass().equals(GridV1.class)) {
+      board = new GridV1(gameConfig.getBoardConfig());
+    }
+    else if (gameConfig.getGridClass().equals(GridV2.class)) {
+      board = new GridV2(gameConfig.getBoardConfig());
+    }
+    else if (gameConfig.getGridClass().equals(GridV3.class)) {
+      board = new GridV3(gameConfig.getBoardConfig());
+    }
+    gameConfig.getRuleset().initializeBoardState(board, gameConfig.getBoardConfig());
+  }
+
   public void runGame() {
-    long endMs = 0, startMs = 0;
+    long endMs = 0, startMs;
     do {
       startMs = System.currentTimeMillis();
       long timeToWait = waitTimeBetweenFrames - (startMs - endMs);
@@ -56,15 +69,15 @@ public class GameRunner {
         runGameTimer.logTime("Time Elapsed to Render frame : ");
       }
       runGameTimer.tick();
-      List<GridCoordinate> updatedCells = updateState().stream()
-          .map(cell -> (GridCoordinate) cell)
+      List<GridCoordinate> updatedLocations = gameConfig.getRuleset().updateState(board)
+          .stream().map(cell -> (GridCoordinate) cell)
           .collect(Collectors.toList());
 
       if (shouldLogThisFrame()) {
         runGameTimer.logTime("Time Elapsed to Update Cells : ");
       }
       runGameTimer.tick();
-      gameDisplay.updateNextFrame(updatedCells);
+      gameDisplay.updateNextFrame(updatedLocations);
 
       if (shouldLogThisFrame()) {
       runGameTimer.logTime("Time Elapsed to Update Next Frame : ");
@@ -77,36 +90,4 @@ public class GameRunner {
   private boolean shouldLogThisFrame() {
     return DEBUG_ENABLED && framesRendered % (2) == 0;
   }
-
-  private List<ICell> updateState() {
-    updateStateTimer.tick();
-    List<ICell> updatedCells = getUpdatedCells();
-    if (shouldLogThisFrame()) {
-      updateStateTimer.logTime("Updated Cells Calculation time : ");
-    }
-    updateStateTimer.tick();
-    board.updateCells(updatedCells);
-    if (shouldLogThisFrame()) {
-      updateStateTimer.logTime("Updating Board time : ");
-    }
-    return updatedCells;
-  }
-
-  private List<ICell> getUpdatedCells() {
-    return board.getLastUpdatedLocations().parallelStream()
-        .map(location -> board.getCellAt(location))
-        .map(cell -> cell.getCellAndNeighbors(board))
-        .flatMap(Collection::parallelStream)
-        .distinct()
-        .filter(cell -> {
-          CellState newState = gameConfig.getRuleset().getNewState(cell, board);
-          if (!newState.equals(cell.getState())) {
-            return true;
-          }
-          else {
-            return false;
-          }
-        }).collect(Collectors.toList());
-  }
-
 }

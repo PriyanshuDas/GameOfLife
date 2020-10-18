@@ -65,7 +65,7 @@ public class GridV1 extends Grid {
   }
 
   @Override
-  public void updateCells(List<ICell> cellsToFlip) {
+  public void updateCells(Collection<ICell> cellsToFlip) {
     List<IBoardLocation> cellsToKill = cellsToFlip.stream()
         .filter(cell -> cell.getState().equals(CellState.ALIVE))
         .map(ICell::getLocation)
@@ -84,10 +84,6 @@ public class GridV1 extends Grid {
         Collectors.toSet());
   }
 
-  public List<IBoardLocation> getAliveCellLocations() {
-      return new ArrayList<>(aliveCells.keySet());
-    }
-
     @Override
     public void initialize(IBoardConfig boardConfig) throws GeneralException {
         if (!boardConfig.getClass().equals(GridConfig.class)) {
@@ -99,15 +95,4 @@ public class GridV1 extends Grid {
         setAliveCells(gridConfig.getAliveCells());
     }
 
-  @Override
-  public List<ICell> getAdjacentCells(ICell cell) {
-    if (!cell.getClass().equals(Cell.class)) {
-      return new ArrayList<>();
-    }
-    return ((Cell) cell).getGridLocation().getAdjacentLocations().stream()
-        .filter(location -> location.getRow() > 0 && location.getColumn() > 0
-            && location.getRow() < rows && location.getColumn() < columns)
-        .map(this::getCellAt)
-        .collect(Collectors.toList());
-  }
 }

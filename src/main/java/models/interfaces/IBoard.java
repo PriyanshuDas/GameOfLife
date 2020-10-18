@@ -12,7 +12,7 @@ public interface IBoard {
   public Collection<IBoardLocation> getLastUpdatedLocations();
   public ICell getCellAt(IBoardLocation boardLocation);
 
-  void updateCells(List<ICell> cellsToFlip);
+  void updateCells(Collection<ICell> cellsToFlip);
 
   Collection<IBoardLocation> getAliveCellsLocations();
 }

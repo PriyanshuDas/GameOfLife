@@ -61,11 +61,11 @@ public class GridRenderer extends JFrame {
           cell.getPosition().getColumn()*cellSize,
           cell.getPosition().getRow()*cellSize,
           cellSize, cellSize);
-      g.setColor(cell.getBorderColor());
-      g.drawRect(
-          cell.getPosition().getColumn()*cellSize,
-          cell.getPosition().getRow()*cellSize,
-          cellSize, cellSize);
+//      g.setColor(cell.getBorderColor());
+//      g.drawRect(
+//          cell.getPosition().getColumn()*cellSize,
+//          cell.getPosition().getRow()*cellSize,
+//          cellSize, cellSize);
     });
   }
 

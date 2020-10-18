@@ -14,39 +14,40 @@ import models.interfaces.ICell;
 @Getter
 @EqualsAndHashCode
 public class Cell implements ICell, GridCoordinate {
-    private GridLocation gridLocation;
-    private CellState cellState;
 
-    @Override
-    public void flipState() {
-        updateState(this.getState() == CellState.ALIVE ? CellState.DEAD : CellState.ALIVE);
-    }
+  private GridLocation gridLocation;
+  private CellState cellState;
 
-    public CellState getState() {
-        return cellState;
-    }
+  @Override
+  public void flipState() {
+    updateState(this.getState() == CellState.ALIVE ? CellState.DEAD : CellState.ALIVE);
+  }
 
-    public void updateState(CellState newState) {
-        cellState = newState;
-    }
+  public CellState getState() {
+    return cellState;
+  }
 
-    public IBoardLocation getLocation() {
-        return gridLocation;
-    }
+  public void updateState(CellState newState) {
+    cellState = newState;
+  }
 
-    public List<ICell> getCellAndNeighbors(IBoard board) {
-            List<ICell> cellsToUpdate = new ArrayList<>(board.getAdjacentCells(this));
-            cellsToUpdate.add(this);
-            return cellsToUpdate;
-    }
+  public IBoardLocation getLocation() {
+    return gridLocation;
+  }
 
-    @Override
-    public int getRow() {
-        return gridLocation.getRow();
-    }
+  public List<ICell> getCellAndNeighbors(IBoard board) {
+    List<ICell> cellsToUpdate = new ArrayList<>(board.getAdjacentCells(this));
+    cellsToUpdate.add(this);
+    return cellsToUpdate;
+  }
 
-    @Override
-    public int getColumn() {
-        return gridLocation.getColumn();
-    }
+  @Override
+  public int getRow() {
+    return gridLocation.getRow();
+  }
+
+  @Override
+  public int getColumn() {
+    return gridLocation.getColumn();
+  }
 }
